@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connector Release Tracker</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/vendor/chart.umd.js"></script>
+  </head>
+  <body>
+    <div id="auth-screen" class="center-card">
+      <h1>Connector Release Tracker</h1>
+      <p id="auth-subtitle"></p>
+      <form id="auth-form">
+        <label>Username <input id="username" type="text" required /></label>
+        <label>Password <input id="password" type="password" required /></label>
+        <button type="submit" id="auth-btn">Continue</button>
+      </form>
+      <p id="auth-error" class="error"></p>
+    </div>
+
+    <div id="app" class="hidden app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <h2>BA Tracker</h2>
+          <button class="nav-btn active" data-view="home">Home</button>
+          <button class="nav-btn" data-view="connectors">Connector List</button>
+          <button class="nav-btn" data-view="gantt">Gantt View</button>
+        </div>
+        <div class="sidebar-bottom">
+          <div class="theme-controls sidebar-theme">
+            <label class="theme-label" for="theme-preset">
+              <span class="theme-icon" aria-hidden="true">&#127912;</span>
+              Theme
+            </label>
+            <select id="theme-preset" title="Theme preset">
+              <option value="vibrant">Vibrant</option>
+              <option value="calm">Calm</option>
+              <option value="sunset">Sunset</option>
+              <option value="ocean">Ocean</option>
+              <option value="high-contrast">High Contrast</option>
+            </select>
+            <button id="theme-mode-toggle" type="button" class="ghost" title="Toggle light and dark mode">Dark</button>
+          </div>
+          <button class="nav-btn nav-icon" data-view="settings" type="button">&#9881; Settings</button>
+          <button class="nav-btn nav-icon" id="sidebar-logout-btn" type="button">&#10162; Logout</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <h3 id="view-title">Home</h3>
+          </div>
+          <div class="actions">
+            <button id="new-btn">New</button>
+          </div>
+        </header>
+
+        <section id="view-home" class="panel active">
+          <div class="home-hero">
+            <h4>Business Apps Overview</h4>
+          </div>
+          <div id="home-cards" class="home-cards"></div>
+          <div class="home-reports">
+            <div class="report-card">
+              <h4>Monthly Connector Releases</h4>
+              <canvas id="monthly-chart"></canvas>
+            </div>
+            <div class="report-card">
+              <h4>Domain Apps</h4>
+              <canvas id="domain-chart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-form" class="panel">
+          <h4 id="form-title">New Connector Record</h4>
+          <form id="app-form" class="grid-form">
+            <input type="hidden" id="record-id" />
+            <label>Application Name <input id="application_name" type="text" required /></label>
+            <label>Domain <input id="domain" type="text" required /></label>
+            <label>Team Assigned <select id="team_assigned"></select></label>
+            <label>Status <select id="status"></select></label>
+            <label>Created Date <input id="created_date" type="date" required /></label>
+            <label>Actual Completed Date <input id="actual_completed_date" type="datetime-local" /></label>
+            <label>Release ETA <input id="release_eta" type="date" /></label>
+            <label>PRD Link <input id="prd_link" type="url" /></label>
+            <label>Build Form <input id="build_request_form" type="url" /></label>
+            <label>PM Owner <input id="pm_owner" type="text" /></label>
+            <label>DA Owner <input id="da_owner" type="text" /></label>
+            <label>PM Manager <input id="pm_manager" type="text" /></label>
+            <div class="form-actions">
+              <button type="submit">Save</button>
+              <button type="button" id="cancel-form" class="ghost">Cancel</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="view-connectors" class="panel">
+          <div class="connector-toolbar">
+            <div class="segmented">
+              <button id="toggle-kanban" class="seg-btn active" type="button">Kanban View</button>
+              <button id="toggle-list" class="seg-btn" type="button">List View</button>
+            </div>
+            <div class="toolbar-filters">
+              <label>Group By
+                <select id="kanban-mode">
+                  <option value="status">Status</option>
+                  <option value="team">Teams</option>
+                </select>
+              </label>
+              <label>Density
+                <select id="list-density">
+                  <option value="comfortable">Comfortable</option>
+                  <option value="compact">Compact</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div id="connector-list-wrap" class="hidden">
+            <div id="list-container"></div>
+          </div>
+          <div id="connector-kanban-wrap">
+            <div id="kanban-container" class="kanban-board"></div>
+          </div>
+          <div id="history-modal" class="history-modal hidden">
+            <div class="history-card">
+              <div class="history-head">
+                <h4 id="history-title">Change History</h4>
+                <button type="button" id="history-close" class="ghost">Close</button>
+              </div>
+              <div id="history-content"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-gantt" class="panel">
+          <div class="gantt-toolbar">
+            <label>Application Name
+              <select id="gantt-app-filter"></select>
+            </label>
+            <label>Calendar View
+              <select id="gantt-calendar-view">
+                <option value="all" selected>All Time</option>
+                <option value="month">Month</option>
+              </select>
+            </label>
+            <label id="gantt-month-wrap">Month
+              <input type="month" id="gantt-month" />
+            </label>
+            <label>View By
+              <select id="gantt-scale">
+                <option value="days">Days</option>
+                <option value="weeks" selected>Weeks</option>
+              </select>
+            </label>
+            <label>Color By
+              <select id="gantt-color-mode">
+                <option value="status">Status</option>
+                <option value="team">Team</option>
+              </select>
+            </label>
+          </div>
+          <div id="gantt-legend" class="gantt-legend"></div>
+          <div id="gantt-container"></div>
+          <div id="gantt-details" class="gantt-details hidden"></div>
+        </section>
+
+        <section id="view-settings" class="panel">
+          <h4>Users</h4>
+          <form id="user-form" class="grid-form compact">
+            <label>Username <input id="new-username" type="text" required /></label>
+            <label>Password <input id="new-password" type="password" /></label>
+            <label>Role
+              <select id="new-role">
+                <option value="viewer">viewer</option>
+                <option value="admin">admin</option>
+              </select>
+            </label>
+            <button type="submit">Add User</button>
+          </form>
+          <div id="users-table"></div>
+        </section>
+      </main>
+    </div>
+    <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="/theme.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
